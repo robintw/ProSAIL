@@ -762,7 +762,7 @@ Extremophile = (0, 1)
 Spherical = (-0.35, -0.15)
 Uniform = (0, 0)
 
-def run(N, Cab, Car, Cbrown, Cw, Cm, psoil, LAI, hspot, tts, tto, psi, LIDF):
+def run(N, Cab, Car, Cbrown, Cw, Cm, psoil, LAI, hspot, tts, tto, psi, LIDF, outname=None, Py6S=False):
 
     # Deal with the LIDF 
     try:
@@ -797,41 +797,29 @@ def run(N, Cab, Car, Cbrown, Cw, Cm, psoil, LAI, hspot, tts, tto, psi, LIDF):
     Rsoil1=np.array(spectra[9])#
     Rsoil2=np.array(spectra[10])#
     rsoil0=soilref(psoil,Rsoil1,Rsoil2)
-    
+
 
     #
     #        CALL PRO4SAIL         #
     #
     rsot, rdot, rsdt, rddt= PRO4SAIL(rho, tau,lidf,LAI,hspot,tts,tto,psi,rsoil0)
     Es=np.array(spectra[7])#
-    #print('Es is length: '+str(Es.size))
     Ed=np.array(spectra[8])#
     #
     #   
     resh, resv=canref(rsot, rdot, rsdt, rddt, Es, Ed, tts)
-    # Writing output to disk
-    outname='Refl_CAN_P5B.txt'
-    writeoutput(spectra[0],resh,resv,outname)
-    outname='prosail.cfg'
-    #   Before returning, save current parameters as old ones
-    paramnames=['Structure coefficient N', 
-        'Chlorophyll content (µg.cm-2) Cab', 
-        'Carotenoid content (µg.cm-2) Car', 
-        'Brown pigment content (arbitrary units) Cbrown', 
-        'Equivalent water thickness (cm) Cw', 
-        'LIDFa',
-        'LIDFb',
-        'LIDF Type TypeLidf',
-        'Leaf mass per unit leaf area (g.cm-2) Cm', 
-        'Leaf area index LAI', 
-        'Hot spot hspot', 
-        'Solar zenith angle (°) tts', 
-        'Observer zenith angle (°) tto', 
-        'Azimuth (°) psi',
-        'Soil coefficient psoil']
-    
-    paramlist=[N,Cab,Car,Cbrown,Cw,Cm,LIDFa,LIDFb,TypeLidf,LAI,hspot,tts,tto,psi,psoil]
-    writeconfig(paramnames, paramlist, outname)
+
+    if outname is not None:
+        # Writing output to disk
+        writeoutput(spectra[0],resh,resv,outname)
+
+    spectra[0] = np.array(spectra[0])
+
+    if Py6S:
+        arr = np.transpose(np.vstack( (spectra[0]/1000.0, resh) ))
+        return arr
+    else:
+        return (spectra[0], resh, resv)
 
 def main_PROSAIL():
 
