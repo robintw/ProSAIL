@@ -754,6 +754,85 @@ def canref(rsot, rdot, rsdt, rddt, Es, Ed, tts):
     resv	= (rdot*PARdifo+rsot*PARdiro)/(PARdiro+PARdifo)
     return resh, resv
 
+# Common leaf distributions
+Planophile = (1, 0)
+Erectophile = (-1, 0)
+Plagiophile = (0, -1)
+Extremophile = (0, 1)
+Spherical = (-0.35, -0.15)
+Uniform = (0, 0)
+
+def run(N, Cab, Car, Cbrown, Cw, Cm, psoil, LAI, hspot, tts, tto, psi, LIDF):
+
+    # Deal with the LIDF 
+    try:
+        l = len(LIDF)
+        if l != 2:
+            # Raise error
+            pass
+
+        TypeLidf = 1
+        LIDFa = LIDF[0]
+        LIDFb = LIDF[1]
+    except TypeError:
+        TypeLidf = 2
+        LIDFa = LIDF
+        LIDFb = 0
+
+    # LIDF output
+    lidf=calcLidf(TypeLidf,LIDFa,LIDFb)
+
+    # Spectra data import
+    headers,spectra=dataSpec_P5B()    
+
+    # PROSPECT output
+    #LEAF CHEM & STR PROPERTIES#
+    rho, tau= prospect_5B(N,Cab,Car,Cbrown,Cw,Cm,spectra)
+
+    #
+    #   Soil Reflectance Properties #
+    #
+    # rsoil1 = dry soil
+    # rsoil2 = wet soil
+    Rsoil1=np.array(spectra[9])#
+    Rsoil2=np.array(spectra[10])#
+    rsoil0=soilref(psoil,Rsoil1,Rsoil2)
+    
+
+    #
+    #        CALL PRO4SAIL         #
+    #
+    rsot, rdot, rsdt, rddt= PRO4SAIL(rho, tau,lidf,LAI,hspot,tts,tto,psi,rsoil0)
+    Es=np.array(spectra[7])#
+    #print('Es is length: '+str(Es.size))
+    Ed=np.array(spectra[8])#
+    #
+    #   
+    resh, resv=canref(rsot, rdot, rsdt, rddt, Es, Ed, tts)
+    # Writing output to disk
+    outname='Refl_CAN_P5B.txt'
+    writeoutput(spectra[0],resh,resv,outname)
+    outname='prosail.cfg'
+    #   Before returning, save current parameters as old ones
+    paramnames=['Structure coefficient N', 
+        'Chlorophyll content (µg.cm-2) Cab', 
+        'Carotenoid content (µg.cm-2) Car', 
+        'Brown pigment content (arbitrary units) Cbrown', 
+        'Equivalent water thickness (cm) Cw', 
+        'LIDFa',
+        'LIDFb',
+        'LIDF Type TypeLidf',
+        'Leaf mass per unit leaf area (g.cm-2) Cm', 
+        'Leaf area index LAI', 
+        'Hot spot hspot', 
+        'Solar zenith angle (°) tts', 
+        'Observer zenith angle (°) tto', 
+        'Azimuth (°) psi',
+        'Soil coefficient psoil']
+    
+    paramlist=[N,Cab,Car,Cbrown,Cw,Cm,LIDFa,LIDFb,TypeLidf,LAI,hspot,tts,tto,psi,psoil]
+    writeconfig(paramnames, paramlist, outname)
+
 def main_PROSAIL():
 
 # 09 22 2011
