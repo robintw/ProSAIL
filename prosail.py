@@ -629,7 +629,6 @@ class Prosail:
     def _dataSpec_P5B(self): # I've reorganized the data so it's separated by row in a CSV file - much easier for handling in Python.
         try:
             infile=open(os.path.abspath(os.curdir)+'/dataSpec_P5.csv', 'r')
-            print('Successfully opened dataSpec_P5.csv, reading data.')
         except:
             print('Cannot open dataSpec_P5.csv, exiting.')
             headers, data= False, False
