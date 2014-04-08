@@ -721,6 +721,48 @@ class Prosail:
     Extremophile = (0, 1)
 
     def run(self, N, Cab, Car, Cbrown, Cw, Cm, psoil, LAI, hspot, tts, tto, psi, LIDF, outname=None, Py6S=False):
+        """
+        Runs the ProSAIL model with the given parameters and returns a wavelength-reflectance
+        array.
+
+        Arguments:
+          
+          * ``N`` -- Structure co-efficient
+          * ``Cab`` -- Chlorophyll content (ug per cm^2)
+          * ``Car`` -- Carotenoid content (ug per cm^2)
+          * ``Cbrown`` -- Brown pigment content (arbitrary units)
+          * ``Cw`` -- Equivalent Water Thickness (cm)
+          * ``Cm`` -- Leaf Mass per unit area (g per cm^2)
+          * ``psoil`` -- Soil reflectance: wet soil = 0, dry soil = 1
+          * ``LAI`` -- Leaf Area Index
+          * ``hspot`` -- Hot spot parameter
+          * ``tts`` -- Solar zenith angle (degrees)
+          * ``tto`` -- View zenith angle (degrees)
+          * ``psi`` -- Azimuth angle (degrees)
+          * ``LIDF`` -- Leaf distibution function parameter(s) (see below)
+          * ``outname`` -- (Optional) Filename to save the output to (default None, which won't save the output)
+          * ``Py6S`` -- (Optional) Format output to be used as a GroundReflectance in Py6S (default False)
+
+        The leaf distribution function parameter(s) argument can be either:
+
+          * A single number giving the average leaf angle (in degrees) for an elipsoidal distribution. 0 is planophile and 90 is erectophile.
+          * A tuple giving (average leaf slope, bimodality parameter). These parameters must sum to be less than 1.0. For
+          convenience a number of predefined options are given including:
+
+                * Prosail.Planophile
+                * Prosail.Erectophile
+                * Prosail.Plagiophile
+                * Prosail.Extremophile
+                * Prosail.Spherical
+                * Prosail.Uniform
+
+        Examples of valid values for the leaf distribution function parameter include:
+
+            * 30 (a 30 degree average leaf angle)
+            * (0, -1) (an average leaf slope of 0 and a bimodality parameter of -1)
+            * PyProsail.Planophile
+        """
+
         # Deal with the LIDF 
         try:
             l = len(LIDF)
