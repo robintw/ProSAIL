@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # coding=utf-8
-import os, sys
+import os
 import numpy as np
 from numpy import pi
 
@@ -764,7 +764,8 @@ Uniform = (0, 0)
 
 def run(N, Cab, Car, Cbrown, Cw, Cm, psoil, LAI, hspot, tts, tto, psi, LIDF, outname=None, Py6S=False):
 
-    # Deal with the LIDF 
+    # Deal with the LIDF parameter, and turn it into the
+    # LIDFa, LIDFb and TypeLidf parameters that ProSAIL needs
     try:
         l = len(LIDF)
         if l != 2:
